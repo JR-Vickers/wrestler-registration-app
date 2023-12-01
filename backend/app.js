@@ -17,9 +17,9 @@ app.post('/add-wrestler', async (req, res) => {
   try {
     const { wrestlerName, teamId, classId } = req.body;
 
-    // Check if classId is above 3
-    if (classId > 3) {
-      return res.status(400).json({ message: 'Invalid classId. Please enter a classId of 1 (heavyweight), 2 (middleweight), or 3 (lightweight).' });
+    // Check if classId is above 13
+    if (classId > 13) {
+      return res.status(400).json({ message: 'Invalid classId. Please enter a classId.' });
     }
 
     // Check for duplicate entry
@@ -30,6 +30,16 @@ app.post('/add-wrestler', async (req, res) => {
 
     if (duplicateCheck.rows.length > 0) {
     return res.status(400).json({ message: 'A wrestler from this team is already registered in this weight class.' });
+    }
+
+    // check if the class is full (16 wrestlers)
+    const classCount = await pool.query(
+      'SELECT COUNT(*) FROM wrestlers WHERE class_id = $1',
+      [classId]
+    );
+
+    if (parseInt(classCount.rows[0].count) >= 16) {
+      return res.status(400).json({ message: 'This weight class is already full.' });
     }
 
     // Insert new wrestler
@@ -45,6 +55,8 @@ app.post('/add-wrestler', async (req, res) => {
   }
 });
 
+
+// TODO: update password security via hashing
 app.post('/login', async (req, res) => {
   const { password } = req.body;
   const storedPassword = 'password'; // This should be retrieved from your database
@@ -72,4 +84,12 @@ app.get('/wrestlers', async (req, res) => {
   }
 });
 
-// TODO: add a way to manage the database (deleting entries, editing, etc.)
+app.get('/weight-classes', async (req, res) => {
+  try {
+    const allClasses = await pool.query('SELECT * FROM weight_classes');
+    res.json(allClasses.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});

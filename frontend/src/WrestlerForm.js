@@ -1,12 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function WrestlerForm() {
+function WrestlerForm({ onAddWrestler }) {
   const [formData, setFormData] = useState({
     wrestlerName: '',
     teamId: '',
     classId: ''
   });
 
+  const [errorMessage, setErrorMessage] = useState('');
+  const [weightClasses, setWeightClasses] = useState([]);
+
+  useEffect(() => {
+    const fetchWeightClasses = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/weight-classes');
+        if (response.ok) {
+          const data = await response.json();
+          setWeightClasses(data);
+        } else {
+          console.error('Failed to fetch weight classes');
+        }
+      } catch (error) {
+        console.error('Error fetching weight classes:', error)
+      }
+    };
+
+    fetchWeightClasses();
+  }, []);
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -27,13 +48,18 @@ function WrestlerForm() {
         // If the response is OK, you can clear the form and/or display a success message
         console.log('Wrestler added successfully');
         setFormData({ wrestlerName: '', teamId: '', classId: '' });
+        setErrorMessage('');
+        if (onAddWrestler) {
+          onAddWrestler();
+        }
       } else {
         // If the server response is not OK, handle errors (e.g., display an error message)
-        console.error('Failed to add wrestler');
+        const errorData = await response.json();
+        setErrorMessage(errorData.message);
       }
     } catch (error) {
       // Handle any errors that occurred during the fetch
-      console.error('Error submitting form:', error);
+      setErrorMessage('Error: ${error.message}');
     }
   };
 
@@ -41,8 +67,7 @@ function WrestlerForm() {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-// TODO: replace some text boxes with dropdown menus, where appropriate
-// TODO: make sure that users can only input correct character types
+  // TODO: replace some text boxes with dropdown menus, where appropriate
   return (
     <form onSubmit={handleSubmit}>
       <input
@@ -54,22 +79,28 @@ function WrestlerForm() {
       />
       <br/>
       <input
-        type="text"
+        type="number"
         name="teamId"
         value={formData.teamId}
         onChange={handleChange}
         placeholder="Team ID"
       />
       <br/>
-      <input
-        type="text"
+      <select
         name="classId"
         value={formData.classId}
         onChange={handleChange}
-        placeholder="Class ID"
-      />
+      >
+        <option value="">Select Weight Class</option>
+        {weightClasses.map((weightClass) => (
+          <option key={weightClass.class_id} value={weightClass.class_id}>
+            {weightClass.class_name}
+          </option>
+        ))}
+      </select>
       <br/>
       <button type="submit">Register Wrestler</button>
+      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>} {/* Display error message */}
     </form>
   );
 }
