@@ -45,6 +45,17 @@ app.post('/add-wrestler', async (req, res) => {
   }
 });
 
+app.post('/login', async (req, res) => {
+  const { password } = req.body;
+  const storedPassword = 'password'; // This should be retrieved from your database
+
+  if (password === storedPassword) {
+    res.json({ success: true, token: 'simpleToken123' }); // For the full app, generate a secure token
+  } else {
+    res.status(401).json({ success: false, message: 'Invalid password' });
+  }
+});
+
 app.get('/', (req, res) => {
   res.send('Welcome to the Wrestling Tournament API!');
 });
@@ -60,3 +71,5 @@ app.get('/wrestlers', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
+
+// TODO: add a way to manage the database (deleting entries, editing, etc.)
