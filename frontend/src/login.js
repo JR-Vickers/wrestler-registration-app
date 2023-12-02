@@ -14,7 +14,7 @@ function Login({ onLogin }) {
         },
         body: JSON.stringify({ password: password })
       });
-      
+
       if (response.ok) {
         // Call onLogin when the login is successful
         onLogin();

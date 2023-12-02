@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 import Login from './login.js';
 import WrestlerList from './WrestlerList';
 import WrestlerForm from './WrestlerForm';
@@ -41,7 +43,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Wrestling Tournament Registration</h1>
+      <h1 className="header">Wrestling Tournament Registration</h1>
       {!isLoggedIn ? (
         <Login onLogin={handleLoginSuccess} />
       ) : (

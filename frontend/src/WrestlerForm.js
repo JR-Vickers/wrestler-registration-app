@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './App.css';
 
 function WrestlerForm({ onAddWrestler }) {
   const [formData, setFormData] = useState({
@@ -67,10 +68,10 @@ function WrestlerForm({ onAddWrestler }) {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-  // TODO: replace some text boxes with dropdown menus, where appropriate
   return (
     <form onSubmit={handleSubmit}>
       <input
+        className="form-input"
         type="text"
         name="wrestlerName"
         value={formData.wrestlerName}
@@ -79,6 +80,7 @@ function WrestlerForm({ onAddWrestler }) {
       />
       <br/>
       <input
+        className="form-input"
         type="number"
         name="teamId"
         value={formData.teamId}
@@ -87,6 +89,7 @@ function WrestlerForm({ onAddWrestler }) {
       />
       <br/>
       <select
+        className="form-input"
         name="classId"
         value={formData.classId}
         onChange={handleChange}
