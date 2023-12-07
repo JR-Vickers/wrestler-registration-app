@@ -1,0 +1,88 @@
+.App {
+  padding: 30px 20px;
+  margin: 0 auto;
+  max-width: 800px;
+  }
+  
+.header {
+  text-align: center;
+  margin: 0 0 20px 0;
+  }
+
+.form-input {
+  margin-bottom: 10px;
+}
+
+.wrestlers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Creates three columns of equal width */
+  gap: 10px; /* Adds space between grid items */
+  margin-bottom: 20px; /* Adds space below the grid */
+}
+
+.wrestler-item {
+  background: #f8f8f8; /* Adds a light background to each item */
+  padding: 10px; /* Adds padding inside each item */
+  border: 1px solid #eaeaea; /* Adds a border to each item */
+}
+
+.class-group {
+  margin-bottom: 20px;
+}
+
+.class-title {
+  margin-top: 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+.wrestler-name {
+  margin-left: 10px;
+}
+
+.login {
+  text-align: center;
+  padding: 40px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.wrestler-list {
+  margin-top: 80px;
+}
+
+.table-wrestlers {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-wrestlers th,
+.table-wrestlers td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.table-wrestlers th {
+  background-color: #f2f2f2;
+}
+
+.table-wrestlers .wrestler-name {
+  width: 70%; /* Adjust the width as needed */
+}
+
+.table-wrestlers .team-name {
+  width: 30%; /* Adjust the width as needed */
+  text-align: left; /* Aligns text to the left */
+}

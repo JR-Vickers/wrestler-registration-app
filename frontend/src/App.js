@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
+import './styles.css';
 import Login from './login.js';
 import WrestlerList from './WrestlerList';
 import WrestlerForm from './WrestlerForm';
@@ -50,7 +50,7 @@ function App() {
         <>
           <WrestlerForm onAddWrestler={fetchWrestlers} />
           <WrestlerList wrestlers={wrestlers} />
-          <button onClick={handleLogout}>Logout</button> {/* Logout button */}
+          <button onClick={handleLogout}>Logout</button>
         </>
       )}
     </div>

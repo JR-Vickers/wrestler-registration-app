@@ -1,37 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import './styles.css';
 
 function WrestlerForm({ onAddWrestler }) {
   const [formData, setFormData] = useState({
     wrestlerName: '',
-    teamId: '',
+    teamName: '',
     classId: ''
   });
 
   const [errorMessage, setErrorMessage] = useState('');
   const [weightClasses, setWeightClasses] = useState([]);
+  const [teams, setTeams] = useState([]);
 
   useEffect(() => {
-    const fetchWeightClasses = async () => {
+    const fetchDropdownData = async () => {
       try {
-        const response = await fetch('http://localhost:5000/weight-classes');
-        if (response.ok) {
-          const data = await response.json();
-          setWeightClasses(data);
+        // Fetch weight classes
+        const weightClassesResponse = await fetch('http://localhost:5000/weight-classes');
+        const teamsResponse = await fetch('http://localhost:5000/teams');
+
+        if (weightClassesResponse.ok && teamsResponse.ok) {
+          const weightClassesData = await weightClassesResponse.json();
+          const teamsData = await teamsResponse.json();
+
+          setWeightClasses(weightClassesData);
+          setTeams(teamsData);
         } else {
-          console.error('Failed to fetch weight classes');
+          console.error('Failed to fetch dropdown data');
         }
       } catch (error) {
-        console.error('Error fetching weight classes:', error)
+        console.error('Error fetching dropdown data:', error);
       }
     };
 
-    fetchWeightClasses();
+    fetchDropdownData();
   }, []);
-  
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     try {
       const response = await fetch('http://localhost:5000/add-wrestler', {
         method: 'POST',
@@ -40,29 +47,35 @@ function WrestlerForm({ onAddWrestler }) {
         },
         body: JSON.stringify({
           wrestlerName: formData.wrestlerName,
-          teamId: parseInt(formData.teamId),  // Ensure this is an integer
-          classId: parseInt(formData.classId)  // Ensure this is an integer
-        })
+          // Make sure to send teamId instead of teamName, as the backend expects an ID
+          teamId: teams.find(t => t.team_name === formData.teamName)?.team_id,
+          classId: parseInt(formData.classId),
+        }),
       });
-
-      if (response.ok) {
-        // If the response is OK, you can clear the form and/or display a success message
-        console.log('Wrestler added successfully');
-        setFormData({ wrestlerName: '', teamId: '', classId: '' });
-        setErrorMessage('');
-        if (onAddWrestler) {
-          onAddWrestler();
+  
+      if (!response.ok) {
+        // Try to parse the response as JSON, but account for the possibility it's not JSON
+        let errorData = { message: response.statusText }; // Default error message
+        try {
+          errorData = await response.json(); // Attempt to parse JSON
+        } catch (jsonError) {
+          console.error('Response not in JSON format:', jsonError);
         }
-      } else {
-        // If the server response is not OK, handle errors (e.g., display an error message)
-        const errorData = await response.json();
         setErrorMessage(errorData.message);
+        return;
+      }
+  
+      console.log('Wrestler added successfully');
+      setFormData({ wrestlerName: '', teamName: '', classId: '' });
+      setErrorMessage('');
+      if (onAddWrestler) {
+        onAddWrestler();
       }
     } catch (error) {
-      // Handle any errors that occurred during the fetch
-      setErrorMessage('Error: ${error.message}');
+      console.error('Error during fetch:', error);
+      setErrorMessage(`Error: ${error.message}`);
     }
-  };
+  };  
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -79,15 +92,24 @@ function WrestlerForm({ onAddWrestler }) {
         placeholder="Wrestler Name"
       />
       <br/>
-      <input
+
+      {/* Dropdown for selecting team by name */}
+      <select
         className="form-input"
-        type="number"
-        name="teamId"
-        value={formData.teamId}
+        name="teamName"
+        value={formData.teamName}
         onChange={handleChange}
-        placeholder="Team ID"
-      />
+      >
+        <option value="">Select Team</option>
+        {teams.map((team) => (
+          <option key={team.team_id} value={team.team_name}>
+            {team.team_name}
+          </option>
+        ))}
+      </select>
       <br/>
+
+      {/* Dropdown for selecting weight class */}
       <select
         className="form-input"
         name="classId"
@@ -102,8 +124,9 @@ function WrestlerForm({ onAddWrestler }) {
         ))}
       </select>
       <br/>
+
       <button type="submit">Register Wrestler</button>
-      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>} {/* Display error message */}
+      {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
     </form>
   );
 }

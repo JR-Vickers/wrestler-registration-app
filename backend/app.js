@@ -17,9 +17,12 @@ app.post('/add-wrestler', async (req, res) => {
   try {
     const { wrestlerName, teamId, classId } = req.body;
 
-    // Check if classId is above 13
-    if (classId > 13) {
-      return res.status(400).json({ message: 'Invalid classId. Please enter a classId.' });
+    // Check if the team exists
+    const teamExists = await pool.query('SELECT * FROM teams WHERE team_id = $1', [teamId]);
+
+    // If the team doesn't exist, create it
+    if (teamExists.rowCount === 0) {
+      await pool.query('INSERT INTO teams (team_id) VALUES ($1)', [teamId]);
     }
 
     // Check for duplicate entry
@@ -51,7 +54,7 @@ app.post('/add-wrestler', async (req, res) => {
     res.json(newWrestler.rows[0]);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -74,13 +77,16 @@ app.get('/', (req, res) => {
 
 app.get('/wrestlers', async (req, res) => {
   try {
-    console.log('Fetching all wrestlers from the database...');
-    const allWrestlers = await pool.query('SELECT * FROM wrestlers');
-    console.log('Wrestlers fetched:', allWrestlers.rows);
-    res.json(allWrestlers.rows);
+    const allWrestlersWithDetails = await pool.query(
+      'SELECT w.wrestler_id, w.wrestler_name, w.team_id, t.team_name, c.class_name ' +
+      'FROM wrestlers w ' +
+      'JOIN teams t ON w.team_id = t.team_id ' +
+      'JOIN weight_classes c ON w.class_id = c.class_id'
+    );
+    res.json(allWrestlersWithDetails.rows);
   } catch (err) {
     console.error('Error occurred:', err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -90,6 +96,16 @@ app.get('/weight-classes', async (req, res) => {
     res.json(allClasses.rows);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+app.get('/teams', async (req, res) => {
+  try {
+    const allTeams = await pool.query('SELECT team_id, team_name FROM teams');
+    res.json(allTeams.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Server Error' });
   }
 });

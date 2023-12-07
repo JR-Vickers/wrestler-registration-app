@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './styles.css';
 
 function Login({ onLogin }) {
   const [password, setPassword] = useState('');
@@ -28,7 +29,7 @@ function Login({ onLogin }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="login">
       <input
         type="password"
         value={password}
